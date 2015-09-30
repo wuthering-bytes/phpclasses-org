@@ -2,7 +2,7 @@
 /**************************************************************************************************************
 
     NAME
-        VariableStore.class.php
+        DbVariableStore.class.php
 
     DESCRIPTION
         Implements a variable store, which can be accessed either as an object or an associative array.
@@ -17,14 +17,6 @@
         Initial version.
 
  **************************************************************************************************************/
-namespace	Thrak\Database\Tables ;
-
-defined ( '__THRAK_SETUP__' ) or die ( "This file cannot be accessed directly." ) ;
-
-
-// Used namespaces & objects
-use	Thrak\Database\Table ;
-use	Thrak\Types\String ;
 
 
 /*==============================================================================================================
@@ -197,7 +189,7 @@ class   DbVariableStore		implements	\Countable, \Iterator, \ArrayAccess
 
 		$query	.=  "ORDER BY name" ;
 
-		$rs		=  mysql_query ( $query ) ;
+		$rs		=  mysqli_query ( $this -> Connection, $query ) ;
 		$result		=  [] ;
 
 		while  ( ( $row = mysqli_fetch_assoc ( $rs ) ) )
@@ -562,7 +554,7 @@ class   DbVariableStore		implements	\Countable, \Iterator, \ArrayAccess
 		$escaped_name	=  mysqli_escape_string ( $this -> Connection, $name ) ;
 		$query		=  "SELECT $select FROM {$this -> Name} WHERE name = '$escaped_name'" ;
 		$rs		=  mysqli_query ( $this -> Connection, $query ) ;
-		$row		=  mysqli_fetch_assoc ( $r ) ;
+		$row		=  mysqli_fetch_assoc ( $rs ) ;
 
 		return ( $row ) ;
 	    }
@@ -608,7 +600,7 @@ class   DbVariableStore		implements	\Countable, \Iterator, \ArrayAccess
 			// Boolean type -
 			//	Checks that the specified value expresses a real boolean value.
 			case	self::TYPE_BOOLEAN :
-				if  ( ( $result = String::BooleanValue ( $value ) )  ===  null )
+				if  ( ( $result = self::BooleanValue ( $value ) )  ===  null )
 					$this -> ConversionError ( $name, $type, "non-boolean value specified", 'from' ) ;
 
 				return ( ( $result ) ?  "1" : "0" ) ;
@@ -704,7 +696,7 @@ class   DbVariableStore		implements	\Countable, \Iterator, \ArrayAccess
 			// Boolean type -
 			//	Checks that the underlying database value expresses a real boolean value.			
 			case	self::TYPE_BOOLEAN :
-				if  ( ( $result = String::BooleanValue ( $value ) )  ===  null )
+				if  ( ( $result = self::BooleanValue ( $value ) )  ===  null )
 					$this -> ConversionError ( $name, $type, "non-boolean value \"$value\" flagged as boolean", 'from' ) ;
 
 				return ( ( $result ) ?  true : false ) ;
@@ -801,6 +793,48 @@ class   DbVariableStore		implements	\Countable, \Iterator, \ArrayAccess
 
 		throw ( new Exception ( $errmsg ) ) ;
 	   }
+
+
+	 /*--------------------------------------------------------------------------------------------------------------
+
+		Check boolean value.
+	  
+	  *-------------------------------------------------------------------------------------------------------------*/
+	private static  $BooleanValuesTable	=  array (
+				""		=> false,
+				"on"		=> true,
+				"yes"		=> true,
+				"true"		=> true,
+				"checked"	=> true,
+				"1"		=> true,
+				"off"		=> false,
+				"no"		=> false,
+				"false"		=> false,
+				"unchecked"	=> false,
+				"0"		=> false
+				) ;
+
+
+	public static function  BooleanValue ( $value )
+	   {
+	   	// Trim any whitespace and convert to lowercase
+	   	$value = trim ( strtolower ( $value ) ) ;
+
+	   	// If the value is numeric, return either true (non-zero) or false (null value)
+		if  ( is_numeric ( $value ) )
+			return ( ( $value ) ? true : false ) ;
+
+		// Other cases : loop through the boolean value keywords to retrieve the appropriate boolean constant
+		foreach  ( self::$BooleanValuesTable  as  $name => $constant )
+		   {
+		   	if  ( ! strcmp ( $name, $value ) )
+		   		return ( $constant ) ;
+		    }
+
+		// Otherwise return false : this means that we failed to interpret the value as a boolean constant
+		return ( null ) ;
+	    }
+
     }
 
 
