@@ -45,9 +45,6 @@
 		  now completely tracked by the __Load() method.
  
 	[Version : 1.0.8]		[Date : 2015/04/11]	[Author : CV]
- 		. Added the SetVariableStore() and __SetVariableStore() methods.
-		. Changed the GetKey() and GetKeys() methods to use optional variable store for 
-		  variable expansion.
  		. Changed the GetKey() method so that several key aliases can be specified as an
  		  array for the $key parameter.
  
@@ -71,7 +68,20 @@
  
  ***************************************************************************************************/
 
-require_once ( 'VariableStore.class.php' ) ;
+// Determine if we run under Windows or Unix
+if  ( ! defined ( 'IS_WINDOWS' ) )
+   {
+	if  ( ! strncasecmp ( php_uname ( 's' ), 'windows', 7 ) )
+	    {
+ 		define ( 'IS_WINDOWS'		,  1 ) ;
+ 		define ( 'IS_UNIX'		,  0 ) ;
+	     }
+	 else
+	    {
+ 		define ( 'IS_WINDOWS'		,  0 ) ;
+ 		define ( 'IS_UNIX'		,  1 ) ;
+	     }
+    }
 
 
 /*===========================================================================================
@@ -118,7 +128,7 @@ require_once ( 'VariableStore.class.php' ) ;
 	  empty string ("").
 
   ===========================================================================================*/
-class  IniFile  extends  Object
+class  IniFile
    {
 	// Ini file path
 	public 		$File			=  null ;
@@ -131,8 +141,6 @@ class  IniFile  extends  Object
         private  	$EOL ;
         // Dirty flag
         private  	$Dirty			=  false ;
-	// Optional variable store
-	public 		$Variables		=  false ;
 	// Separator between a key and a value
 	public		$Separator		=  '=' ;
 
@@ -168,7 +176,7 @@ class  IniFile  extends  Object
 	   {
 	   	// Determine the current EOL string, depending on OS type.
 	   	// This setting may be overriden if .INI file contents coming from a different OS are loaded.
-	   	if  ( IS_STANDALONE )
+	   	if  ( IS_WINDOWS )
 	   	   {
 			$this -> CRLF	=  true ;
                         $this -> EOL    =  "\r\n" ;
@@ -306,9 +314,9 @@ class  IniFile  extends  Object
 		$key_value_separator	=  $this -> Separator ;
 
  	   	$single_re		=  '/^
-   						(?P<name> [^' . $key_value_separator . ']+)
+   						(?P<name> [^ \t' . $key_value_separator . ']+)
 							(
- 	   							(?P<sep>  ' . $key_value_separator . '\s*)
+ 	   							(?P<sep>  \s*' . $key_value_separator . '\s*)
  	   							(?P<value> .*)
 							 )?
 			 		     $/isx' ;
@@ -461,7 +469,7 @@ class  IniFile  extends  Object
 				if  ( preg_match ( $multi_re, $entry, $matches ) )
    				   {
 					$name		=  trim ( $matches [ 'name' ] ) ;
-					$separator	=  trim ( $matches [ 'sep' ] ) ;
+					$separator	=  $matches [ 'sep' ] ;
 					$word 		=  trim ( $matches [ 'word' ] ) ;
 					$multiline 	=  true ;
 
@@ -727,13 +735,8 @@ class  IniFile  extends  Object
 	 --------------------------------------------------------------------------------------------*/
 	public function  AppendFromArray ( $array )
 	   {
-		if  ( IS_STANDALONE )
-			$eol = "\r\n" ;
-		else
-			$eol = "\n" ;
-
 		$this -> Dirty = true ;
-		return ( $this -> __Load ( implode ( $eol, $array ), null, $this -> Separator ) ) ;
+		return ( $this -> __Load ( implode ( $this -> EOL, $array ), null, $this -> Separator ) ) ;
 	     }
 
 
@@ -1193,14 +1196,7 @@ class  IniFile  extends  Object
 
 	    RETURN VALUE
 	    	A reference to the key value, or $default if the key does not exist.
-	 	If a variable store has been defined using the SetVariableStore() method, the returned
-	 	value will include variable expansion.
 	  
-	    NOTES
-	 	When values are expanded using a variable store, the returned value will not be a 
-	 	reference to the key value but rather a copy. If you want to change the value of the 
-	 	key, use the SetKey() method instead of directly modifying the returned value.
-
 	 --------------------------------------------------------------------------------------------*/
 	public function &GetKey ( $section, $key, $default = null )
 	   {
@@ -1222,14 +1218,7 @@ class  IniFile  extends  Object
 
 				if  ( $item [ 'type']  ==  self::INI_ENTRY  &&  ! strcasecmp ( $item [ 'name' ], $key ) )
 				   {
-					if  ( $this -> Variables )
-					   {
-						$value	=  $this -> Variables -> Expand ( $item [ 'value' ] ) ;
-					
-						return ( $value ) ;
-					    }
-					else
-						return $item [ 'value' ] ;
+					return $item [ 'value' ] ;
 				    }
 				else if  ( $item [ 'type' ]  ==  self::INI_SECTION )
 					break ;
@@ -1301,10 +1290,7 @@ class  IniFile  extends  Object
 				else
 					$name	=  $item [ 'name' ] ;
 				
-				// If a variable store is to be used, expand the value
-				if  ( $this -> Variables )
-					$resulting_item		=  $this -> Variables -> Expand ( $item [ 'value' ] ) ;
-				else if  ( $keys_by_reference )
+				if  ( $keys_by_reference )
 					$resulting_item		=  &$item [ 'value' ] ;
 				else
 					$resulting_item		=  $item [ 'value' ] ;
@@ -1580,19 +1566,14 @@ class  IniFile  extends  Object
 	 --------------------------------------------------------------------------------------------*/
 	public static function  LoadFromArray ( $array, $separator = '=' )
 	   {
-		if  ( IS_STANDALONE )
-			$eol = "\r\n" ;
-		else
-			$eol = "\n" ;
-
 		$object = new IniFile ( $separator ) ;
-		$object -> __Load ( implode ( $eol, $array ) ) ;
+		$object -> __Load ( implode ( $this -> EOL, $array ) ) ;
 
 		return ( $object ) ;
 	    }
 
 
-	public static function  LoadFromFile ( $file, $load_option = self::LOAD_ANY, $separator = '=' )
+	public static function  LoadFromFile ( $inifile, $load_option = self::LOAD_ANY, $separator = '=' )
 	   {
 		global		$Application ;
 
@@ -1602,14 +1583,14 @@ class  IniFile  extends  Object
 		switch  ( $load_option )
 		   {
 			case	self::LOAD_ANY :
-				if  ( file_exists ( $file ) )
+				if  ( file_exists ( $inifile ) )
 				   {
 					$load = true ;
 					break ;
 				    }
 	    			else
     				   {
-				   	$fp = @fopen ( $file, "w" ) ;
+				   	$fp = @fopen ( $inifile, "w" ) ;
 
 				   	if  ( ! $fp )
 				   		throw ( new Exception ( "The .ini file '$file' could not be created." ) ) ;
@@ -1642,7 +1623,7 @@ class  IniFile  extends  Object
 		$object -> File = $inifile ;
 
 		if  ( $load )
-			$object -> __Load ( file_get_contents ( $inifile ), $file, $separator ) ;
+			$object -> __Load ( file_get_contents ( $inifile ), $inifile, $separator ) ;
 
 		return ( $object ) ;
 	    }
@@ -2030,104 +2011,4 @@ class  IniFile  extends  Object
 	    }
 
 	 
-	/*-------------------------------------------------------------------------------------------
-
-	    NAME
-		SetVariableStore - Associates a variable store to this .ini file.
-
-	    PROTOTYPE
-		$inifile -> SetVariableStore ( [$section | $store | $array | $options]... ) ;
-
-	    DESCRIPTION
-		Defines a variable store for value expansion using the specified parameters.
-	 
-	    PARAMETERS
-		The parameter list is highly polymorphic and can contain any combination of the 
-	 	following values, which are only named for convenience purpose :
-	  
-	 	$store (VariableStore object) -
-	 		A variable store object that contains variable definitions.
-	  
-	 	$section (string) -
-	 		The name of a section in this .ini file that contains variable definitions.
-	  
-	 	$array (array or AssociativeArray) -
-	 		An associative array of variable name/value pairs.
-	  
-	 	$options (integer) -
-	 		Options to use for the VariableStore object creation. The default value for
-			this parameter is VariableStore::OPTION_DEFAULT.
-	  
-	 	Variables specified in multiple $section, $array and $store parameters are merged into
-	 	the final variable store object. Variables with the same name will be overridden.
-	  
-	 	Multiple $options parameters are merged.
-	  
-	 	If no arguments are specified, then any existing variable store will be cancelled.
-
-	 --------------------------------------------------------------------------------------------*/
-	public function  SetVariableStore ( )
-	   {
-		$this -> __SetVariableStore ( func_get_args ( ) ) ;
-	    }
-	
-	
-	public function  __SetVariableStore ( $argv )
-	   {
-		// Set variable store to empty if no argument has been specified	
-		$argc			=  count ( $argv ) ;
-		
-		if  ( ! $argc )
-		   {
-			$this -> Variables	=  false ;
-			return ;
-		    }
-		
-		// At that point, we do not know if the variable store is case sensitive or not, so we will first collect
-		// all variable name/value pairs in this temporary array
-		$temp_variables		=  [] ;
-		
-		// Variable store options
-		$options		=  VariableStore::OPTION_NONE ;
-		
-		// Collect parameters
-		for  ( $i = 0 ; $i  <  $argc ; $i ++ )
-		   {
-			$arg	=  $argv [$i] ;
-			
-			// String : name of a section in this .ini file that will be converted to associative array
-			if  ( is_string ( $arg ) )
-				$arg	=  $this -> GetKeys ( $arg ) ;	
-			
-			// Array-like argument : collect the entries
-			if  ( is_array ( $arg )  ||  
-					is_a ( $arg, '\Thrak\Processors\VariableStore' )  ||  
-					is_a ( $arg, '\Thrak\Types\AssociativeArray' ) )
-			   {
-				foreach  ( $arg  as  $name => $value )
-					$temp_variables []	=  [ $name, $value ] ;
-			    }
-			// Numeric argument : variable store options
-			else if  ( is_numeric ( $arg ) )
-				$options	|=  ( integer ) $arg ;
-			// None of the above...
-			else
-				throw ( new Exception ( "The argument #" . ( $i + 1 ) . " specified for the SetVariableStore() " .
-						"method has an invalid type (only integers, associative arrays, section names and " .
-						"Associativearray/VariableStore objects are allowed)." ) ) ;
-		    }
-		
-		// If no option has been specified, use the default ones
-		if  ( ! $options )
-			$options	=  VariableStore::OPTION_DEFAULT ;
-		
-		// All arguments have been collected ; create the variable store
-		$variables	=  new VariableStore ( $options ) ;
-		
-		foreach  ( $temp_variables  as  $item )
-			$variables -> Define ( $item [0], $item [1] ) ;
-		
-		$this -> Variables	=  $variables ;
-		
-	    }
     }
