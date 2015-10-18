@@ -1265,7 +1265,7 @@ class  IniFile
 		$index = $this -> __FindSection ( $section ) ;
 
 		if  ( $index  ===  false )
-			return ( [] ) ;
+			return ( array ( ) ) ;
 
 		$result = array ( ) ;
 		
@@ -1354,10 +1354,10 @@ class  IniFile
 			   {
 				if  ( $regex )
 				   {
-					$match		=  [] ;
+					$match		=  array ( ) ;
 					
 					if  ( preg_match ( $regex, $item [ 'value' ], $match ) )
-						$result	[]	=  [ 'name' => $item [ 'value' ], 'match' => $match ] ;
+						$result	[]	=  array ( 'name' => $item [ 'value' ], 'match' => $match ) ;
 				    }
 				else
 					$result [] = $item [ 'value' ] ;
