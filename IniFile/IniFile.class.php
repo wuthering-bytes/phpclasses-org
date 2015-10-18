@@ -1206,7 +1206,7 @@ class  IniFile
 		if  ( $index  ===  false )
 			return $false ;
 
-		$keys	=  ( is_array ( $key ) ) ?  $key : [ $key ] ;
+		$keys	=  ( is_array ( $key ) ) ?  $key : array ( $key ) ;
 			
 		foreach  ( $keys  as  $key )
 		   {

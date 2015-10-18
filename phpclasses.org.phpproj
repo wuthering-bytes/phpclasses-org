@@ -21,16 +21,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="IniFile\" />
+    <Folder Include="DbVariableStore\" />
     <Folder Include="Registry\" />
     <Folder Include="Regex\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DbVariableStore\example.php" />
     <Compile Include="IniFile\IniFile.class.php" />
-    <Compile Include="IniFile\VariableStore.class.php" />
     <Compile Include="Regex\Regex.class.php" />
     <Compile Include="Regex\example.php" />
     <Compile Include="Registry\example.php" />
     <Compile Include="Registry\Registry.class.php" />
+    <Compile Include="DbVariableStore\DbVariableStore.class.php" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="IniFile\LICENSE" />
@@ -41,6 +43,8 @@
     <Content Include="Registry\LICENSE" />
     <Content Include="Registry\NOTICE" />
     <Content Include="Registry\README.html" />
+    <Content Include="DbVariableStore\LICENSE" />
+    <Content Include="DbVariableStore\NOTICE" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\DEVSENSE\PHP Tools\VS$(VisualStudioVersion)\Devsense.PHP.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
