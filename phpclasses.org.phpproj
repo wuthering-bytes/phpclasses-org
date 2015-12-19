@@ -22,6 +22,7 @@
   <ItemGroup>
     <Folder Include="IniFile\" />
     <Folder Include="DbVariableStore\" />
+    <Folder Include="Articles\" />
     <Folder Include="Registry\" />
     <Folder Include="Regex\" />
   </ItemGroup>
@@ -35,6 +36,7 @@
     <Compile Include="DbVariableStore\DbVariableStore.class.php" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Articles\regex01.html" />
     <Content Include="IniFile\LICENSE" />
     <Content Include="IniFile\NOTICE" />
     <Content Include="Regex\README.html" />
