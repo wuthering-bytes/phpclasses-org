@@ -1,13 +1,39 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title></title>
+	<title></title>
 </head>
 <body>
 	<div>
-		<div style="float: right; padding-left: 8px; padding-bottom: 8px; text-align: center"><img itemprop="image" class="photo" src="http://files.phpclasses.org/picture/user/676432.jpg" width="90" height="117" alt="Picture of Christian Vigh" title="Picture of Christian Vigh"><br />By <a rel="author" href="/browse/author/676432.html">Christian Vigh</a> <img align="middle" width="18" height="20" src="http://files.phpclasses.org/graphics/fr.gif" alt="France" title="France"><br><br><a rel="nofollow" href="http://www.christian-vigh.net/" target="_blank">christian-vigh.net</a><br><br><tt>&lt;<a href="http://www.phpclasses.org/contact/package/9336/" target="_blank">email contact</a>&gt;</tt></div><div itemprop="articleBody">
-			<h2>Contents</h2><h3>Introduction</h3><h3>The Beginning Problem</h3><h3>The Concept of Meta Regular Expression Matching</h3><h3>The PHP Advanced Regex package</h3><h3>Conclusion</h3><p style="text-align: center;"><img src="http://files.phpclasses.org/files/blog/package/9336/file/Email-regex.png" alt="Email Regex from https://commons.wikimedia.org/wiki/File:Email-regex.svg  Creative Commons Attribution-Share Alike 2.5 Generic" title="Email Regex from https://commons.wikimedia.org/wiki/File:Email-regex.svg  Creative Commons Attribution-Share Alike 2.5 Generic" width="480" height="58"></p><h2>Introduction</h2><div>Some time ago I had the need to go farther than what PHP can offer regarding regular expressions. I wanted to analyze log file contents, each line being matched by a specific regular expression. I wanted that a single regular expression could be used to match a sequence of lines in a logfile using some kind of <b>meta-matching</b>.</div><div><br></div><div>This article explains the basic knowledge about regular expressions that was needed to achieve that goal. It describes the intermediate methods that I built as steps towards meta-matching.</div><div><br></div><div>Then it introduces this so-called &quot;meta-matching&quot; feature that allows you to describe text flows as sequences of meta-regular expressions involving themselves their own sets of regular expressions provided to match particular lines of text.</div>
-			<h2>The Beginning Problem</h2>Let's suppose you have to scan a sequence of lines, such as in a log file. You want to	recognize which sequence follows which pattern.
+		<div style="float: right; padding-left: 8px; padding-bottom: 8px; text-align: center">
+			<img itemprop="image" class="photo" src="http://files.phpclasses.org/picture/user/676432.jpg" width="90" height="117" alt="Picture of Christian Vigh" title="Picture of Christian Vigh"><br />
+			By <a rel="author" href="/browse/author/676432.html">Christian Vigh</a>
+			<img align="middle" width="18" height="20" src="http://files.phpclasses.org/graphics/fr.gif" alt="France" title="France"><br>
+			<br>
+			<a rel="nofollow" href="http://www.christian-vigh.net/" target="_blank">christian-vigh.net</a><br>
+			<br>
+			<tt>&lt;<a href="http://www.phpclasses.org/contact/package/9336/" target="_blank">email contact</a>&gt;</tt></div>
+		<div itemprop="articleBody">
+			<h2>Contents</h2>
+			<h3>Introduction</h3>
+			<h3>The Beginning Problem</h3>
+			<h3>The Concept of Meta Regular Expression Matching</h3>
+			<h3>The PHP Advanced Regex package</h3>
+			<h3>Conclusion</h3>
+			<p style="text-align: center;">
+				<img src="http://files.phpclasses.org/files/blog/package/9336/file/Email-regex.png" alt="Email Regex from https://commons.wikimedia.org/wiki/File:Email-regex.svg  Creative Commons Attribution-Share Alike 2.5 Generic" title="Email Regex from https://commons.wikimedia.org/wiki/File:Email-regex.svg  Creative Commons Attribution-Share Alike 2.5 Generic" width="480" height="58"></p>
+			<h2>Introduction</h2>
+			<div>Some time ago I had the need to go farther than what PHP can offer regarding regular expressions. I wanted to analyze log file contents, each line being matched by a specific regular expression. I wanted that a single regular expression could be used to match a sequence of lines in a logfile using some kind of <b>meta-matching</b>.</div>
+			<div>
+				<br>
+			</div>
+			<div>This article explains the basic knowledge about regular expressions that was needed to achieve that goal. It describes the intermediate methods that I built as steps towards meta-matching.</div>
+			<div>
+				<br>
+			</div>
+			<div>Then it introduces this so-called &quot;meta-matching&quot; feature that allows you to describe text flows as sequences of meta-regular expressions involving themselves their own sets of regular expressions provided to match particular lines of text.</div>
+			<h2>The Beginning Problem</h2>
+			Let's suppose you have to scan a sequence of lines, such as in a log file. You want to	recognize which sequence follows which pattern.
 
 			A typical sequence in an example log file could be, for example:
 			<ul>
