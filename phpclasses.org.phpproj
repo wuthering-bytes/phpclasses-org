@@ -20,13 +20,20 @@
     <IncludeDebugInformation>false</IncludeDebugInformation>
   </PropertyGroup>
   <ItemGroup>
+    <Folder Include="Articles\performance\" />
+    <Folder Include="Articles\regex\" />
+    <Folder Include="DbStringStore\data\" />
     <Folder Include="IniFile\" />
     <Folder Include="DbVariableStore\" />
     <Folder Include="Articles\" />
+    <Folder Include="DbStringStore\" />
     <Folder Include="Registry\" />
     <Folder Include="Regex\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DbStringStore\DbStringStore.php" />
+    <Compile Include="DbStringStore\DbTable.php" />
+    <Compile Include="DbStringStore\example.php" />
     <Compile Include="DbVariableStore\example.php" />
     <Compile Include="IniFile\IniFile.class.php" />
     <Compile Include="Regex\Regex.class.php" />
@@ -36,7 +43,13 @@
     <Compile Include="DbVariableStore\DbVariableStore.class.php" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Articles\regex01.html" />
+    <Content Include="Articles\performance\perf01.html" />
+    <Content Include="Articles\regex\regex01.html" />
+    <Content Include="Articles\regex\regex02.html" />
+    <Content Include="DbStringStore\article.md" />
+    <Content Include="DbStringStore\data\example.log" />
+    <Content Include="DbStringStore\data\words-english-big.dic.zip" />
+    <Content Include="DbStringStore\README.md" />
     <Content Include="IniFile\LICENSE" />
     <Content Include="IniFile\NOTICE" />
     <Content Include="Regex\README.html" />
