@@ -27,10 +27,12 @@
     <Folder Include="DbVariableStore\" />
     <Folder Include="Articles\" />
     <Folder Include="DbStringStore\" />
+    <Folder Include="DbBufferedOperation\" />
     <Folder Include="Registry\" />
     <Folder Include="Regex\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DbBufferedOperation\benchmark.php" />
     <Compile Include="DbStringStore\DbStringStore.php" />
     <Compile Include="DbStringStore\DbTable.php" />
     <Compile Include="DbStringStore\example.php" />
@@ -46,9 +48,13 @@
     <Content Include="Articles\performance\perf01.html" />
     <Content Include="Articles\regex\regex01.html" />
     <Content Include="Articles\regex\regex02.html" />
+    <Content Include="DbBufferedOperation\DbBufferedInsert.php" />
+    <Content Include="DbBufferedOperation\DbBufferedLoadFile.php" />
+    <Content Include="DbBufferedOperation\DbBufferedOperation.php" />
+    <Content Include="DbBufferedOperation\DbBufferedUpdate.php" />
     <Content Include="DbStringStore\article.md" />
     <Content Include="DbStringStore\data\example.log" />
-    <Content Include="DbStringStore\data\words-english-big.dic.zip" />
+    <Content Include="DbStringStore\data\words-english-big.dic" />
     <Content Include="DbStringStore\README.md" />
     <Content Include="IniFile\LICENSE" />
     <Content Include="IniFile\NOTICE" />
