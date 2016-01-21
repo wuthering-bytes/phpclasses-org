@@ -4,7 +4,6 @@ The *DbBufferedOperation* base class and its derived classes (*DbBufferedInsert*
 
 You will use a *DbBufferedInsert* object to buffer INSERT requests, *DbBufferedLoadFile* for buffered LOAD DATA statements, and *DbBufferedUpdate* for buffered UPDATE statements.
 
-
 ## WHY SHOULD I BUFFER DATABASE OPERATIONS ? ##
 
 Sometimes, we have to perform database operations as fast as possible. Just write or update ten or a hundred records without taking too much time, because we are operating in some real-time interactive environment, and we don't want the user to notice that our website is trying a desperate attempt to crawl the stream upwards. Or just because we are running a background process that has to acquire many data from the network within a limited time.
